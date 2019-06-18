@@ -12,35 +12,67 @@ def writeCSV (row,Output_CSV):
         writer.writerow(row)
     csvFile.close()
 
-#IOC_Hash = "f9992dfb56a9c6c20eb727e6a26b0172"
-#Function to Create working directory if it doesn't exist already
-#workDir = "C:\VT_IOC_Hash_Matcher"
+work_Dir = os.getcwd()
 
-#Get present working directory
-workDir = os.getcwd()
-user_Input = input("Please choose the input file path\n 1: C:\VT_IOC_Hash_Matcher\Input.csv (Preferred for windows) \n 2: I will type in the full path \n")
-if user_Input == '1':
-    input_File_Path = "C:\VT_IOC_Hash_Matcher\Input.csv"
-elif user_Input == '2':
-    user_Input_Option = input("Please type in the directory:\n")
-    input_File_Path = user_Input_Option
-else:
-    print("Invalid option. Please run again!")
-    workDir = "None"
+#Get input file path from user
+while ('true'):
+    user_Input = input(
+        "Please choose the input file path\n 1: C:\VT_IOC_Hash_Matcher\Input.csv (Preferred for windows) \n 2: I will type in the full path \n")
+    if user_Input == '1':
+        input_File_Path = r"C:\VT_IOC_Hash_Matcher\Input.csv"
+        while not os.path.isfile(input_File_Path):
+            print("The input file path", input_File_Path, "does not exist. Please try again\n")
+            user_Input = input(
+                "Please choose the input file path\n 1: C:\VT_IOC_Hash_Matcher\Input.csv (Preferred for windows) \n 2: I will type in the full path \n")
+            input_File_Path = r"C:\VT_IOC_Hash_Matcher\Input.csv"
+        break
+    elif user_Input == '2':
+        input_File_Path_From_User = input("Please type in the full path for the input file:\n")
+        while not os.path.isfile(input_File_Path_From_User):
+            print("The entered file path does not exist. Please try again")
+            input_File_Path_From_User = input("Please type in the input file path:\n")
+        input_File_Path = input_File_Path_From_User
+        break
+    else:
+        print("Invalid option. Try again:")
+        continue
+
+#Get API Key file path from user
+while ('true'):
+    user_Input = input(r"Please choose the API Key file path\n 1: C:\VT_IOC_Hash_Matcher\api_Key.json (Preferred for windows) \n 2: I will type in the full path \n")
+    if user_Input == '1':
+        API_Key_File_Path = r"C:\VT_IOC_Hash_Matcher\api_Key.json"
+        while not os.path.isfile(API_Key_File_Path):
+            print("File path:", API_Key_File_Path, "does not exist. Please try again")
+            API_Key_Path_From_User = input("Please type in the API Key path:\n")
+        API_Key_File_Path = API_Key_Path_From_User
+        break
+    elif user_Input == '2':
+        API_Key_Path_From_User = input("Please type in the full path for the API Key file:\n")
+        while not os.path.isfile(API_Key_Path_From_User):
+            print("The entered file path does not exist. Please try again")
+            API_Key_Path_From_User = input("Please type in the API Key path:\n")
+        API_Key_File_Path = API_Key_Path_From_User
+        break
+    else:
+        print("Invalid option. Try again:")
+        continue
+
+#Read API Key from file:
+#api_Key_File_Path = workDir + r"\api_Key.json"
+print("Opening", API_Key_File_Path)
+with open(API_Key_File_Path,'r')as API_File:
+    API_Data = json.load(API_File)
+print(API_Data["api_Key"])
+api_Key = API_Data["api_Key"]
+if (len(api_Key)) != 64:
+    print("Invalid API Key. Run again with valid credentials stored in the API_Key file!!")
     exit(-1)
-#input_File_Path = workDir + "\Input.csv"
-api_Key = 'a86c11b36346da6309f284a270b80ace7a38139de3a35920bc53b35bc5aba07d'
 url = 'https://www.virustotal.com/vtapi/v2/file/report'
-Output_CSV = workDir + "\Output.csv"
+print("Working Dir:", work_Dir)
+Output_CSV = work_Dir + "\Output.csv"
+print("Input File:", input_File_Path)
 print("Output File:", Output_CSV)
-print("Working Dir:", workDir)
-
-#Check if file exists:
-exists = os.path.isfile(input_File_Path)
-if not exists:
-    print("Input File: ", input_File_Path, "doesn't exist at", workDir)
-    exit(-1)
-
 row_start = ["Input Value", "md5", "sha1", "sha256"]
 writeCSV (row_start, Output_CSV)
 
@@ -84,4 +116,5 @@ with open(input_File_Path,'r')as i_File:
             print ("The HTTP request to VT was not successful")
     #Close the input file
     i_File.close()
-    exit(0)
+    print("The output file is stored at:",Output_CSV )
+exit(0)
